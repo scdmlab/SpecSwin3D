@@ -1,10 +1,80 @@
 # SpecSwin3D
 
-SpecSwin3D is a deep learning project for hyperspectral image band reconstruction, band importance analysis, and visualization. It provides tools for preprocessing, training, evaluation, and visualization of models, with a focus on spectral band selection and reconstruction.
+SpecSwin3D is a deep learning framework for hyperspectral image (HSI) band reconstruction, spectral modeling, and band importance analysis. The project focuses on reconstructing full hyperspectral signatures from sparse spectral observations, with applications in remote sensing and Earth observation.
 
-## Project Structure
+This repository contains the original SpecSwin3D implementation (v1) used for early experiments on band selection, reconstruction, and visualization.
+The updated and extended model (SpecSwin3D v2) is provided separately as a packaged release.
 
-```
+==================================================
+SpecSwin3D v2
+==================================================
+
+IMPORTANT NOTICE
+The latest version of the model is provided in:
+
+SpecSwin3D_v2.zip
+
+SpecSwin3D v2 introduces significant upgrades in model design, training strategy, and evaluation methodology, with a focus on physically informed spectral modeling and improved reconstruction accuracy.
+
+--------------------------------------------------
+What’s New in SpecSwin3D v2
+--------------------------------------------------
+
+1. Unified Spectral Regularization Framework
+
+A physically informed spectral regularization objective is introduced during training, combining multiple complementary constraints:
+
+- Anchor Consistency Constraint
+  Enforces consistency between reconstructed hyperspectral outputs and observed multispectral bands through sensor spectral response function (SRF) projection.
+
+- PCA Manifold Constraint
+  Constrains reconstructed spectra to lie within a low-dimensional spectral subspace learned from training data, improving physical plausibility and robustness.
+
+- Spectral Angle Mapper (SAM) Loss
+  Penalizes angular deviation between reconstructed and reference spectra, emphasizing spectral shape preservation.
+
+- Spectral Smoothness Regularization
+  Encourages smooth spectral transitions along the wavelength dimension, suppressing non-physical oscillations.
+
+All constraints are modular and can be enabled or disabled independently.
+
+--------------------------------------------------
+2. Spectral Positional Embedding (SPE)
+--------------------------------------------------
+
+SpecSwin3D v2 introduces Spectral Positional Embedding (SPE) to explicitly encode band-wise spectral ordering within transformer attention blocks.
+
+- Supports learned and continuous (wavelength-based) spectral embeddings
+- Enhances long-range spectral dependency modeling
+- Improves discrimination across spectrally distant bands
+
+--------------------------------------------------
+3. Cascade Curriculum Training Strategy
+--------------------------------------------------
+
+A multi-stage cascade curriculum is adopted to progressively increase spectral reconstruction difficulty:
+
+- Early stages emphasize easier or anchor spectral bands
+- Later stages expand toward full-spectrum reconstruction
+- Improves training stability and convergence behavior
+
+A no-cascade baseline is also supported for direct comparison.
+
+--------------------------------------------------
+4. Extended Evaluation and Analysis
+--------------------------------------------------
+
+SpecSwin3D v2 expands the evaluation protocol with:
+
+- Full-spectrum band-wise reconstruction metrics
+- Confidence interval estimation for reconstruction accuracy
+- Error analysis with respect to spectral distance
+- Attention map visualization for spectral interpretability
+
+==================================================
+Original SpecSwin3D (v1) Repository Structure
+==================================================
+
 SpecSwin3D/
 ├── data_preprocessing/
 │   ├── input-label.py
@@ -27,74 +97,16 @@ SpecSwin3D/
 ├── visualize/
 │   ├── analyze_checkpoints_structure.py
 │   └── visualize_model_output.py
-```
 
-## Main Components
+==================================================
+Data
+==================================================
 
-- **data_preprocessing/**: Scripts for preparing and stacking hyperspectral data and labels.
-- **train/**: Training scripts, band importance calculation, and utility functions for normalization/denormalization.
-- **evaluation/**: Scripts for evaluating model performance and summarizing band metrics.
-- **visualize/**: Tools for visualizing model outputs and checkpoint structures.
-- **strategies/**: Predefined band selection strategies based on different importance metrics.
+The raw hyperspectral dataset used in this project is from the AVIRIS mission:
+https://aviris.jpl.nasa.gov/
 
-## Key Scripts
+The processed dataset used for training and evaluation is not publicly available.
+For access, please contact the author:
 
-- `train_SpecSwin3D_16.py`: Main training script for the SpecSwin3D model with 16 input bands.
-- `calculate_band_importance.py`: Analyze and rank the importance of spectral bands using various methods (variance, correlation, mutual information, spectral physics).
-- `denormalize_utils.py`: Utilities for denormalizing predictions and batches.
-- `evaluate_models.py`: Evaluate trained models on test data.
-- `visualize_model_output.py`: Visualize model predictions and outputs.
-
-## Usage
-
-1. **Data Preprocessing**
-   - Use scripts in `data_preprocessing/` to prepare your input and label data.
-
-2. **Band Importance Analysis**
-   - Run `calculate_band_importance.py` to generate band importance rankings and strategies.
-
-3. **Training**
-   - Train models using `train_SpecSwin3D_16.py`.
-   - You can specify a custom band selection strategy using the `--strategy custom --custom_txt <strategy_file>` arguments.
-
-4. **Evaluation**
-   - Use scripts in `evaluation/` to assess model performance and summarize results.
-
-5. **Visualization**
-   - Visualize outputs and checkpoints using scripts in `visualize/`.
-
-## Example Training Command
-
-```
-python train_SpecSwin3D_16.py --strategy custom --custom_txt strategies/variance_strategy.txt --batch_size 12
-```
-
-## Data
-
-The raw hyperspectral dataset used in this project is from the AVIRIS mission ([https://aviris.jpl.nasa.gov/](https://aviris.jpl.nasa.gov/)).
-
-**Note:** The processed dataset used in this project is not publicly available. For access to the dataset, please contact the author:
-
-- Tang Sui (tsui5@wisc.edu)
-
-## Requirements
-- Python 3.7+
-- PyTorch
-- numpy, matplotlib, scikit-learn, tqdm, seaborn, etc.
-
-Install dependencies with:
-```
-pip install -r requirements.txt
-```
-or use the provided `environments.txt` for environment setup.
-
-## License
-
-This project is licensed for academic and research use only. For commercial or other uses, please contact the author.
-
-## Citation
-If you use SpecSwin3D in your research, please cite the relevant papers and this repository.
-
----
-
-For more details, see the code and comments in each script.
+Tang Sui
+Email: tsui5@wisc.edu
